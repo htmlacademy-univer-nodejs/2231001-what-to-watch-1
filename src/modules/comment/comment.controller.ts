@@ -4,6 +4,7 @@ import {inject} from 'inversify';
 import {Controller} from '../../common/controller/controller.js';
 import HttpError from '../../common/errors/http-error.js';
 import {LoggerInterface} from '../../common/logger/logger.interface.js';
+import {PrivateRouteMiddleware} from '../../middlewares/private-route.middleware.js';
 import {ValidateDtoMiddleware} from '../../middlewares/validate-dto.middleware.js';
 import {COMPONENT} from '../../types/component.type.js';
 import {HttpMethod} from '../../types/http-method.enum.js';
@@ -25,11 +26,16 @@ export default class CommentController extends Controller {
       path: CommentRoute.ROOT,
       method: HttpMethod.Post,
       handler: this.create,
-      middlewares: [new ValidateDtoMiddleware(CreateCommentDto)]
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateDtoMiddleware(CreateCommentDto)
+      ]
     });
   }
 
-  public async create({body}: Request<object, object, CreateCommentDto>, res: Response): Promise<void> {
+  public async create(req: Request<object, object, CreateCommentDto>, res: Response): Promise<void> {
+    const {body, user} = req;
+
     if (!await this.movieService.exists(body.movieId)) {
       throw new HttpError(
         StatusCodes.NOT_FOUND,
@@ -38,7 +44,7 @@ export default class CommentController extends Controller {
       );
     }
 
-    const comment = await this.commentService.create(body);
+    const comment = await this.commentService.create({...body, userId: user.id});
     this.created(res, fillDTO(CommentResponse, comment));
   }
 }

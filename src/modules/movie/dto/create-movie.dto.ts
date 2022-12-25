@@ -1,16 +1,4 @@
-import {
-  IsArray,
-  IsBoolean,
-  IsDateString,
-  IsEnum,
-  IsInt,
-  IsMongoId,
-  IsString,
-  Length,
-  Matches,
-  Max,
-  Min
-} from 'class-validator';
+import {IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsString, Length, Matches, Max, Min} from 'class-validator';
 import {GenreEnum, TGenre} from '../../../types/genre.type.js';
 
 export default class CreateMovieDto {
@@ -47,9 +35,6 @@ export default class CreateMovieDto {
   @Min(0, {message: 'durationInMinutes can not be less than 0'})
   public durationInMinutes!: number;
 
-  @IsMongoId({message: 'userId field must be valid an id'})
-  public userId!: string;
-
   @Matches(/(\S+(\.jpg)$)/, {message: 'posterPath must be .jpg format image'})
   @IsString({message: 'posterPath is required'})
   public posterPath!: string;
@@ -63,4 +48,6 @@ export default class CreateMovieDto {
 
   @IsBoolean({message: 'isPromo should be boolean'})
   public isPromo?: boolean;
+
+  public userId!: string;
 }

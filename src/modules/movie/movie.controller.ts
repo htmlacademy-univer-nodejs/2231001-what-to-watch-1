@@ -1,10 +1,13 @@
 import {DocumentType} from '@typegoose/typegoose/lib/types.js';
 import {Request, Response} from 'express';
 import * as core from 'express-serve-static-core';
+import {StatusCodes} from 'http-status-codes';
 import {inject, injectable} from 'inversify';
 import {Controller} from '../../common/controller/controller.js';
+import HttpError from '../../common/errors/http-error.js';
 import {LoggerInterface} from '../../common/logger/logger.interface.js';
 import {DocumentExistsMiddleware} from '../../middlewares/document-exists.middleware.js';
+import {PrivateRouteMiddleware} from '../../middlewares/private-route.middleware.js';
 import {ValidateDtoMiddleware} from '../../middlewares/validate-dto.middleware.js';
 import {ValidateObjectIdMiddleware} from '../../middlewares/validate-objectid.middleware.js';
 import {COMPONENT} from '../../types/component.type.js';
@@ -45,7 +48,10 @@ export default class MovieController extends Controller {
       path: MovieRoute.CREATE,
       method: HttpMethod.Post,
       handler: this.create,
-      middlewares: [new ValidateDtoMiddleware(CreateMovieDto)]
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateDtoMiddleware(CreateMovieDto)
+      ]
     });
     this.addRoute<MovieRoute>({
       path: MovieRoute.MOVIE,
@@ -61,6 +67,7 @@ export default class MovieController extends Controller {
       method: HttpMethod.Patch,
       handler: this.update,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('movieId'),
         new ValidateDtoMiddleware(UpdateMovieDto),
         new DocumentExistsMiddleware(this.movieService, 'Movie', 'movieId')
@@ -71,6 +78,7 @@ export default class MovieController extends Controller {
       method: HttpMethod.Delete,
       handler: this.delete,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('movieId'),
         new DocumentExistsMiddleware(this.movieService, 'Movie', 'movieId')
       ]
@@ -98,9 +106,11 @@ export default class MovieController extends Controller {
     this.ok(res, movieResponse);
   }
 
-  async create({body}: Request<Record<string, unknown>, Record<string, unknown>, CreateMovieDto>, res: Response): Promise<void> {
-    const result = await this.movieService.create(body);
-    this.created(res, fillDTO(MovieResponse, result));
+  async create(req: Request<Record<string, unknown>, Record<string, unknown>, CreateMovieDto>, res: Response): Promise<void> {
+    const {body, user} = req;
+    const result = await this.movieService.create({...body, userId: user.id});
+    const movie = await this.movieService.findById(result.id);
+    this.created(res, fillDTO(MovieResponse, movie));
   }
 
   async show({params}: Request<core.ParamsDictionary | ParamsGetMovie>, res: Response): Promise<void> {
@@ -108,12 +118,30 @@ export default class MovieController extends Controller {
     this.ok(res, fillDTO(MovieResponse, result));
   }
 
-  async update({params, body}: Request<core.ParamsDictionary | ParamsGetMovie, Record<string, unknown>, UpdateMovieDto>, res: Response): Promise<void> {
+  async update(req: Request<core.ParamsDictionary | ParamsGetMovie, Record<string, unknown>, UpdateMovieDto>, res: Response): Promise<void> {
+    const {params, body, user} = req;
+    const movie = await this.movieService.findById(params.movieId);
+    if (movie?.userId?.id !== user.id) {
+      throw new HttpError(
+        StatusCodes.FORBIDDEN,
+        `User with id ${user.id} doesn't own movie card with id ${movie?.id}, so can't edit it.`,
+        'MovieController'
+      );
+    }
     const result = await this.movieService.updateById(params.movieId, body);
     this.ok(res, fillDTO(MovieResponse, result));
   }
 
-  async delete({params}: Request<core.ParamsDictionary | ParamsGetMovie>, res: Response): Promise<void> {
+  async delete(req: Request<core.ParamsDictionary | ParamsGetMovie>, res: Response): Promise<void> {
+    const {params, user} = req;
+    const movie = await this.movieService.findById(params.movieId);
+    if (movie?.userId?.id !== user.id) {
+      throw new HttpError(
+        StatusCodes.FORBIDDEN,
+        `User with id ${user.id} doesn't own movie card with id ${movie?.id}, so can't delete it.`,
+        'MovieController'
+      );
+    }
     await this.movieService.deleteById(`${params.movieId}`);
     this.noContent(res, {message: 'Фильм успешно удален.'});
   }

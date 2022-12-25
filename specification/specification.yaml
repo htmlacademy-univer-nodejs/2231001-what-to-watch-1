@@ -101,28 +101,6 @@ paths:
                 $ref: '#/components/schemas/user'
 
 
-  /users/logout:
-    delete:
-      tags:
-        - users
-      summary: Выход из закрытой части приложения
-      description: Завершение пользовательского сеанса.
-
-      parameters:
-        - in: cookie
-          name: SESSIONID
-          required: true
-          schema:
-            type: string
-
-      responses:
-        "204":
-          description: Успешно.
-
-        "403":
-          description: Неверный токен. Завершение пользовательского сеанса невозможно.
-
-
   /movies/create:
     post:
       tags:
@@ -237,11 +215,6 @@ paths:
             schema:
               type: object
 
-              properties:
-                userId:
-                  type: string
-                  format: uuid
-
       responses:
         "204":
           description: Фильм успешно удален.
@@ -317,14 +290,6 @@ paths:
             schema:
               type: object
 
-              properties:
-                userId:
-                  type: string
-                  format: uuid
-
-              required:
-                - userId
-
       responses:
         "200":
           description: Успешно. Фильмы, добавленные к просмотру.
@@ -346,25 +311,19 @@ paths:
       description: Добавляет фильм в список "К просмотру"
 
       requestBody:
-        description: Id пользователя, добавляющего фильм к просмотру, и id фильма, который добавляют в список.
+        description: id фильма, который добавляют в список.
         content:
           application/json:
             schema:
               type: object
 
               properties:
-                userId:
-                  type: string
-                  format: uuid
-                  example: 6329c3d6a04ab1061c6425ea
-
                 movieId:
                   type: string
                   format: uuid
                   example: 6329c3d6a04ab1061c6425ease8u342
 
               required:
-                - userId
                 - movieId
 
       responses:
@@ -382,25 +341,19 @@ paths:
       description: Удаляет фильм из списка "К просмотру"
 
       requestBody:
-        description: Id пользователя, удаляющего фильм из списка "К просмотру", и id этого фильма.
+        description: id этого фильма.
         content:
           application/json:
             schema:
               type: object
 
               properties:
-                userId:
-                  type: string
-                  format: uuid
-                  example: 6329c3d6a04ab1061c6425ea
-
                 movieId:
                   type: string
                   format: uuid
                   example: 6329c3d6a04ab1061c6425ease8u342
 
               required:
-                - userId
                 - movieId
 
       responses:
@@ -573,11 +526,6 @@ components:
           type: number
           minimum: 0.1
 
-        userId:
-          type: string
-          format: uuid
-          example: 6329c3d6a04ab1061c6425ea
-
         posterPath:
           type: string
           format: uri
@@ -605,7 +553,6 @@ components:
         - actors
         - director
         - durationInMinutes
-        - userId
         - posterPath
         - backgroundImagePath
         - backgroundColor

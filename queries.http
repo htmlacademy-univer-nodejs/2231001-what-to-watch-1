@@ -4,6 +4,7 @@
 ## Добавить новый фильм
 POST http://localhost:4200/movies/create HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InBoaWxpcHBAbWFpbC5ydSIsImlkIjoiNjNhOGMyMDRjYmM5ZjMwM2Y5MjVmMGMwIiwiaWF0IjoxNjcyMDA1NDU1LCJleHAiOjE2NzIxNzgyNTV9.zTb1ZWFAsfjawpxitvdj8DJ6MSPBROI2e1LoHnbp0T4
 
 {
   "title": "Голодные игры",
@@ -20,7 +21,6 @@ Content-Type: application/json
   ],
   "director": "Гэри Росс",
   "durationInMinutes": 0,
-  "userId": "6383d47aed383bd2e38c2d32",
   "posterPath": "hunger_games_poster.jpg",
   "backgroundImagePath": "hunger_games_bg.jpg",
   "backgroundColor": "green"
@@ -31,6 +31,7 @@ Content-Type: application/json
 ## Редактирование карточки фильма
 PATCH http://localhost:4200/movies/638d07890c09034b948986d9 HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InBoaWxpcHBAbWFpbC5ydSIsImlkIjoiNjNhOGMyMDRjYmM5ZjMwM2Y5MjVmMGMwIiwiaWF0IjoxNjcyMDA1NDU1LCJleHAiOjE2NzIxNzgyNTV9.zTb1ZWFAsfjawpxitvdj8DJ6MSPBROI2e1LoHnbp0T4
 
 {
   "title": "Король лев",
@@ -47,7 +48,6 @@ Content-Type: application/json
   ],
   "director": "Роджер Алерс",
   "durationInMinutes": 0,
-  "userId": "6383d47aed383bd2e38c2d32",
   "posterPath": "lion_king_poster.jpg",
   "backgroundImagePath": "lion_king_bg.jpg",
   "backgroundColor": "orange",
@@ -89,10 +89,7 @@ Accept: application/json
 GET http://localhost:4200/users/to_watch HTTP/1.1
 Accept: application/json
 Content-Type: application/json
-
-{
-  "userId": "6383d47aed383bd2e38c2d32"
-}
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InBoaWxpcHBAbWFpbC5ydSIsImlkIjoiNjNhOGMyMDRjYmM5ZjMwM2Y5MjVmMGMwIiwiaWF0IjoxNjcyMDA1NDU1LCJleHAiOjE2NzIxNzgyNTV9.zTb1ZWFAsfjawpxitvdj8DJ6MSPBROI2e1LoHnbp0T4
 
 ###
 
@@ -100,9 +97,9 @@ Content-Type: application/json
 POST http://localhost:4200/users/to_watch HTTP/1.1
 Accept: application/json
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InBoaWxpcHBAbWFpbC5ydSIsImlkIjoiNjNhOGMyMDRjYmM5ZjMwM2Y5MjVmMGMwIiwiaWF0IjoxNjcyMDA1NDU1LCJleHAiOjE2NzIxNzgyNTV9.zTb1ZWFAsfjawpxitvdj8DJ6MSPBROI2e1LoHnbp0T4
 
 {
-  "userId": "638d1929d4b90dfe8de2f94a",
   "movieId": "638d0d6b0f5e4b6fb4376ea2"
 }
 
@@ -111,9 +108,9 @@ Content-Type: application/json
 ## Удалить фильм из списка «К просмотру»
 DELETE http://localhost:4200/users/to_watch HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InBoaWxpcHBAbWFpbC5ydSIsImlkIjoiNjNhOGMyMDRjYmM5ZjMwM2Y5MjVmMGMwIiwiaWF0IjoxNjcyMDA1NDU1LCJleHAiOjE2NzIxNzgyNTV9.zTb1ZWFAsfjawpxitvdj8DJ6MSPBROI2e1LoHnbp0T4
 
 {
-  "userId": "6383d47aed383bd2e38c2d32",
   "movieId": "638d0d6b0f5e4b6fb4376ea2"
 }
 
@@ -129,12 +126,12 @@ Accept: application/json
 ## Добавить новый комментарий к определённому фильму
 POST http://localhost:4200/comments HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InBoaWxpcHBAbWFpbC5ydSIsImlkIjoiNjNhOGMyMDRjYmM5ZjMwM2Y5MjVmMGMwIiwiaWF0IjoxNjcyMDA1NDU1LCJleHAiOjE2NzIxNzgyNTV9.zTb1ZWFAsfjawpxitvdj8DJ6MSPBROI2e1LoHnbp0T4
 
 {
   "text": "Новый комментарий для Голодных игр",
   "rating": 5,
   "publishingDate": "2022-10-21T22:55:33.903Z",
-  "userId": "6383d47aed383bd2e38c2d32",
   "movieId": "638d0d6b0f5e4b6fb4376ea2"
 }
 
@@ -164,3 +161,20 @@ Content-Type: image/png
 
 < /Users/demelissiana/temp/avatar.png
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+## Вход в закрытую часть приложения
+POST http://localhost:4200/users/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "philipp@mail.ru",
+  "password": "123456"
+}
+
+###
+
+## Проверка токена пользователя
+GET http://localhost:4200/users/login HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InBoaWxpcHBAbWFpbC5ydSIsImlkIjoiNjNhOGMyMDRjYmM5ZjMwM2Y5MjVmMGMwIiwiaWF0IjoxNjcyMDA1NDU1LCJleHAiOjE2NzIxNzgyNTV9.zTb1ZWFAsfjawpxitvdj8DJ6MSPBROI2e1LoHnbp0T4
